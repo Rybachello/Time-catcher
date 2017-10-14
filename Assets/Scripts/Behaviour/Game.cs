@@ -5,6 +5,9 @@ namespace Assets.Scripts
 {
     public class Game : MonoBehaviour
     {
+        public float TestGameSpeed = 1;
+        public float TestMultiplierSpeed = 1;
+
         private static Game _instance;
         private static bool _pause = false;
 
@@ -24,10 +27,11 @@ namespace Assets.Scripts
         private void Update ( ) {
             if (Game.Pause)
                 return;
-
-            Time.timeScale = Speed;
-            _clockTime.UpdateSeconds(Time.deltaTime * _gameSpeed);
-            Debug.Log(_clockTime.Hours + ":" + _clockTime.Minutes + ":" + _clockTime.Seconds.ToString("#.##"));
+#if UNITY_EDITOR
+            Speed = TestGameSpeed;
+            _clockTime.TimeMultiplier = TestMultiplierSpeed;
+#endif
+            _clockTime.UpdateMinutes(Time.deltaTime * Speed);
         }
 
 

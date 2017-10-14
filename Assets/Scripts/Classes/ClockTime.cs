@@ -11,7 +11,7 @@ namespace Assets.Scripts
         private float _minutes;
         private float _seconds;
 
-        private float _timeMultiplier = 1f;
+        private float _timeMultiplier = 10f;
 
         public ClockTime ( ) {
             _hours = 0;
@@ -32,15 +32,23 @@ namespace Assets.Scripts
         }
 
 
-
-        public void UpdateSeconds (float deltaTime) {
-            var seconds = deltaTime * _timeMultiplier;
+        public void UpdateSeconds (float deltaSecond) {
+            var seconds = deltaSecond * _timeMultiplier;
             Seconds += seconds;
+        }
+
+        public void UpdateMinutes (float deltaMinutes) {
+            var minutes = deltaMinutes * _timeMultiplier;
+            Minutes += minutes;
+        }
+
+        public float TimeMultiplier {
+            set { _timeMultiplier = value; }
         }
 
         public float Seconds {
             get { return _seconds; }
-            set {
+            private set {
                 _seconds = value;
                 if (_seconds <= 60)
                     return;
@@ -51,7 +59,7 @@ namespace Assets.Scripts
 
         public float Minutes {
             get { return _minutes; }
-            set {
+            private set {
                 _minutes = value;
                 if (_minutes <= 60)
                     return;
@@ -62,7 +70,7 @@ namespace Assets.Scripts
 
         public float Hours {
             get { return _hours; }
-            set {
+            private set {
                 _hours = value;
                 if (_hours <= 24)
                     return;

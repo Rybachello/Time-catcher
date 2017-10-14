@@ -8,7 +8,7 @@ namespace Assets.Scripts
         public ArrowType ArrowType;
 
         private Game _game;
-        
+        [SerializeField] private float LerpTime = 5;
         private const float hoursToDegrees = 360f / 12f;
         private const float minutesToDegrees = 360f / 60f;
         private const float secondsToDegrees = 360f / 60f;
@@ -29,7 +29,8 @@ namespace Assets.Scripts
 
         private void UpdateArrowMovement ( ) {
             var delta = GetAngle();
-            transform.localRotation = Quaternion.Euler(0, 0, delta);
+            var angle = Quaternion.Euler(0, 0, delta);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation,angle,LerpTime);
         }
 
         private float GetAngle ( ) {
