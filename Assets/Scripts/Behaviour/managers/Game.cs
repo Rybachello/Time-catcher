@@ -1,19 +1,17 @@
-﻿using System;
+﻿using Assets.Scripts.Classes;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Behaviour
 {
     public class Game : MonoBehaviour
     {
-        public float TestGameSpeed = 1;
-        public float TestMultiplierSpeed = 1;
-
-        private static Game _instance;
-        private static bool _pause = false;
-
-        [SerializeField] private static float _gameSpeed = 1f;
-
         private ClockTime _clockTime;
+
+        private static bool _pause = false;
+        private static bool _gameOver = false;
+        private static float _gameSpeed = 1f;
+        
+        private static Game _instance;
 
         private void Awake ( ) {
             _instance = this;
@@ -24,30 +22,34 @@ namespace Assets.Scripts
             _instance = null;
         }
 
+        private void OnEnable ( ) {
+            EventManager.StartListening(EventManagerType.OnGameStart, OnGameStart);
+            EventManager.StartListening(EventManagerType.OnGameEnd, OnGameEnd);
+        }
+
+        private void OnDisable ( ) {
+            EventManager.StopListening(EventManagerType.OnGameStart, OnGameStart);
+            EventManager.StopListening(EventManagerType.OnGameEnd, OnGameEnd);
+        }
+
         private void Update ( ) {
-            if (Game.Pause)
+            if (Game.Pause || Game.GameOver)
                 return;
-#if UNITY_EDITOR
-            Speed = TestGameSpeed;
-            _clockTime.TimeMultiplier = TestMultiplierSpeed;
-#endif
             _clockTime.UpdateMinutes(Time.deltaTime * Speed);
         }
 
-
         private static void OnGameStart ( ) {
-            //todo: implement here
+            //todo: generate target 
+            //EventManager.TriggerEvent(
         }
 
-        private static void OnGameFinished ( ) {
+        private static void OnGameEnd ( ) {
             //todo: implement here
         }
-
 
         public ClockTime ClockTime {
             get { return _clockTime; }
         }
-
 
         public static float Speed {
             get { return _gameSpeed; }
@@ -59,12 +61,15 @@ namespace Assets.Scripts
             }
         }
 
-
         public static bool Pause {
             get { return _pause; }
             set { _pause = value; }
         }
 
+        public static bool GameOver {
+            get { return _gameOver; }
+            set { _gameOver = value; }
+        }
 
         public static Game Instance {
             get {

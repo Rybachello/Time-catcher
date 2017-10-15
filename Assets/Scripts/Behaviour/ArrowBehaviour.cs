@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Behaviour
 {
     public class ArrowBehaviour : MonoBehaviour
     {
