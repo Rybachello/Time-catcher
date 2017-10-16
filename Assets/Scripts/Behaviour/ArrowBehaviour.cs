@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Behaviour.managers;
+using UnityEngine;
 
 namespace Assets.Scripts.Behaviour
 {
@@ -21,7 +22,7 @@ namespace Assets.Scripts.Behaviour
         }
 
         private void Update ( ) {
-            if (Game.Pause)
+            if (Game.Pause || Game.GameOver)
                 return;
             UpdateArrowMovement();
         }
@@ -29,7 +30,7 @@ namespace Assets.Scripts.Behaviour
         private void UpdateArrowMovement ( ) {
             var delta = GetAngle();
             var angle = Quaternion.Euler(0, 0, delta);
-            transform.localRotation = Quaternion.Lerp(transform.localRotation,angle,LerpTime);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, angle, LerpTime);
         }
 
         private float GetAngle ( ) {

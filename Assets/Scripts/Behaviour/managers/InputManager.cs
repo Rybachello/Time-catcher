@@ -7,14 +7,13 @@ namespace Assets.Scripts.Behaviour.managers
         private const float MinTimeSpeed = 0.75f;
         private const float MaxTimeSpeed = 5f;
 
-        [SerializeField] private float _lerpTime;
+        [SerializeField] private float _lerpTime = 1.25f;
+        private float _currentLerpTime;
 
         private Game _game;
 
         private float _currentSpeed;
-        private float currentLerpTime;
         private bool _slowTime;
-        private bool _speedUpTime;
 
         private void Start ( ) {
             _game = Game.Instance;
@@ -22,56 +21,49 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         private void Update ( ) {
+            if (Game.Pause || Game.GameOver)
+                return;
 
-            currentLerpTime += Time.deltaTime;
-            if (currentLerpTime > _lerpTime) {
-                currentLerpTime = _lerpTime;
+            _currentLerpTime += Time.deltaTime;
+            if (_currentLerpTime > _lerpTime) {
+                _currentLerpTime = _lerpTime;
             }
 
-          
+            Game.Speed = UpdateSpeedTime();
+        }
+
+        private float UpdateSpeedTime ( ) {
+            var perc = _currentLerpTime / _lerpTime;
+            float speed;
             if (_slowTime) {
-                float perc = currentLerpTime / _lerpTime;
-                var speed  = Mathf.Lerp(_currentSpeed, MinTimeSpeed, perc);
+                speed = Mathf.Lerp(_currentSpeed, MinTimeSpeed, perc);
                 speed = speed < MinTimeSpeed ? MinTimeSpeed : speed;
-                Game.Speed = speed;
-                return;
-
-            } 
-            if( _speedUpTime)
-            {
-                float perc = currentLerpTime / _lerpTime;
-                var speed = Mathf.Lerp(MinTimeSpeed, _currentSpeed, perc);
+            } else {
+                speed = Mathf.Lerp(MinTimeSpeed, _currentSpeed, perc);
                 speed = speed > MaxTimeSpeed ? MaxTimeSpeed : speed;
-                Game.Speed = speed;
-                return;
             }
+            return speed;
         }
-        //todo: refactor
+
         void OnMouseDown ( ) {
-            _slowTime = true;
-            _speedUpTime = false;
-            currentLerpTime = 0f;
-            Debug.Log("Down");
+            SlowTime = true;
+            Debug.Log("[input] mouseDown");
         }
+
 
         void OnMouseUp ( ) {
-            _speedUpTime = true;
-            _slowTime = false;
-            currentLerpTime = 0f;
-            Debug.Log("UP");
+            SlowTime = false;
+            _game.CatchTime();
+            EventManager.TriggerEvent(EventManagerType.CatchTime); //set an ivent
+            Debug.Log("[input] mouseUp");
         }
 
-        //private float SlowDownTime ( ) {
-           
-
-         
-        //    speed = speed < MinTimeSpeed ? MinTimeSpeed : speed;
-        //    return speed;
-        //}
-
-        private float SpeedUpTime ( ) {
-            var speed = Mathf.Lerp(MinTimeSpeed, _currentSpeed, _lerpTime);
-            return speed;
+        public bool SlowTime {
+            get { return _slowTime; }
+            private set {
+                _slowTime = value;
+                _currentLerpTime = 0;
+            }
         }
     }
 }

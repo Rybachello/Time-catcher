@@ -10,10 +10,10 @@ namespace Assets.Scripts
 
         private void Start()
         {
-#if UNITY_EDITOR
-            Game.Speed = GameSpeed;
-            Game.Instance.ClockTime.TimeMultiplier = ClockMultiplierSpeed;
-#endif
+//#if UNITY_EDITOR
+//            Game.Speed = GameSpeed;
+//            Game.Instance.ClockTime.TimeMultiplier = ClockMultiplierSpeed;
+//#endif
         }
     }
 }

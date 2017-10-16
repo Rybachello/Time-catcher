@@ -69,6 +69,7 @@ namespace Assets.Scripts.Behaviour
     public enum EventManagerType
     {
         OnGameStart,
-        OnGameEnd
+        OnGameEnd,
+        CatchTime
     }
 }

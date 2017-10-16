@@ -6,7 +6,7 @@
         private float _minutes;
         private float _seconds;
 
-        private float _timeMultiplier = 10f;
+        private float _timeMultiplier = 50f;
 
         public ClockTime ( ) {
             _hours = 0;
@@ -67,7 +67,7 @@
             get { return _hours; }
             private set {
                 _hours = value;
-                if (_hours <= 24)
+                if (_hours < 12)
                     return;
                 _hours = 0;
             }
