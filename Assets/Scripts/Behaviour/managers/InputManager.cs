@@ -18,6 +18,7 @@ namespace Assets.Scripts.Behaviour.managers
         private void Start ( ) {
             _game = Game.Instance;
             _currentSpeed = Game.Speed;
+            
         }
 
         private void Update ( ) {
@@ -28,7 +29,6 @@ namespace Assets.Scripts.Behaviour.managers
             if (_currentLerpTime > _lerpTime) {
                 _currentLerpTime = _lerpTime;
             }
-
             Game.Speed = UpdateSpeedTime();
         }
 
@@ -38,9 +38,13 @@ namespace Assets.Scripts.Behaviour.managers
             if (_slowTime) {
                 speed = Mathf.Lerp(_currentSpeed, MinTimeSpeed, perc);
                 speed = speed < MinTimeSpeed ? MinTimeSpeed : speed;
+                Camera.main.orthographicSize = Mathf.Lerp(5.5f, 5f, perc);
+
             } else {
                 speed = Mathf.Lerp(MinTimeSpeed, _currentSpeed, perc);
                 speed = speed > MaxTimeSpeed ? MaxTimeSpeed : speed;
+                if(Camera.main.orthographicSize != 5.5f)
+                Camera.main.orthographicSize = Mathf.Lerp(5f, 5.5f, perc);
             }
             return speed;
         }

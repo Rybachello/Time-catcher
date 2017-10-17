@@ -74,8 +74,8 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         private static float GenerateNewTime ( ) {
-            var hours = Random.Range(0, 12);
-            var minutes = Random.Range(0, 60);
+            var hours = Random.Range(0, 11);
+            var minutes = Random.Range(0, 59);
             var time = GetTime(hours, minutes);
 
             return time;
@@ -88,15 +88,20 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         private void CheckTime (float currentTime) {
-            if (Mathf.Abs(_targetTime - currentTime) < _deltaTime) {
-                //successful
-                User.Score += 5;
-                _targetTime = GenerateNewTime();
-                //todo: mb restrict deltaTime
-            } else {
+            var diff = Mathf.Abs(_targetTime - currentTime);
+            if (diff > _deltaTime) {
                 Debug.Log("[game] you loose");
-                Game.OnGameEnd();
+               // Game.OnGameEnd();
+                return;
             }
+
+            User.Score += 5;
+            if (diff < _deltaTime/2) {
+                //successful
+                User.Score += 10;
+            }
+            //todo: mb restrict deltaTime
+            _targetTime = GenerateNewTime();
         }
 
         #region  properties

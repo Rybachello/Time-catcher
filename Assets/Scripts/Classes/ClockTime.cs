@@ -6,7 +6,7 @@
         private float _minutes;
         private float _seconds;
 
-        private float _timeMultiplier = 50f;
+        private float _timeMultiplier = 25f;//50
 
         public ClockTime ( ) {
             _hours = 0;

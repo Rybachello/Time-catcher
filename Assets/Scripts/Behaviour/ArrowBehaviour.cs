@@ -36,9 +36,9 @@ namespace Assets.Scripts.Behaviour
         private float GetAngle ( ) {
             switch (ArrowType) {
                 case ArrowType.Hours:
-                    return _game.ClockTime.Hours * -hoursToDegrees;
+                    return _game.ClockTime.Hours * hoursToDegrees;
                 case ArrowType.Minutes:
-                    return _game.ClockTime.Minutes * -minutesToDegrees;
+                    return _game.ClockTime.Minutes * minutesToDegrees;
             }
             Debug.LogWarning("Cannot calculate angle");
             return float.NaN;

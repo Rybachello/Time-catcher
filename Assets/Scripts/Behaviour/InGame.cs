@@ -13,6 +13,6 @@ public class InGame : MonoBehaviour
     void Update ( ) {
         UserScoreText.text = User.Score.ToString();
         var time = Game.Instance.TargetTime;
-        TargetText.text = "Time:" + (time / 60).ToString("##") + ":" + (time % 60).ToString("##");
+        TargetText.text = "Catch time:" + (time / 60).ToString("##") + ":" + (time % 60).ToString("##");
     }
 }
