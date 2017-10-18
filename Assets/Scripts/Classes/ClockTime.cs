@@ -6,7 +6,7 @@
         private float _minutes;
         private float _seconds;
 
-        private float _timeMultiplier = 25f;//50
+        private float _timeMultiplier = 5f;//50
 
         public ClockTime ( ) {
             _hours = 0;
@@ -35,6 +35,11 @@
         public void UpdateMinutes (float deltaMinutes) {
             var minutes = deltaMinutes * _timeMultiplier;
             Minutes += minutes;
+        }
+        public void UpdateHours(float deltaHours)
+        {
+            var hours = deltaHours * _timeMultiplier;
+            Hours += hours;
         }
 
         public float TimeMultiplier {
