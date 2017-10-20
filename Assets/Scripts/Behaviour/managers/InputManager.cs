@@ -1,22 +1,22 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Classes;
+using UnityEngine;
 
 namespace Assets.Scripts.Behaviour.managers
 {
     public class InputManager : MonoBehaviour
     {
-        private float _lerpTime = 0.5f;
-        private float _currentLerpTime;
+        private const float LerpTime = 0.5f;
+        private const string AnimRelease = "release";
+        private const string AnimPress = "press";
 
         private Camera _camera;
         private Animator _animator;
 
+        private float _currentLerpTime;
         private float _currentSpeed;
-        private bool _slowTime;
         private float _currentSize;
-
-        private const string anim_release = "relase";
-        private const string anim_press = "press";
-
+        private bool _slowTime;
+        
         private void Awake ( ) {
             Init();
         }
@@ -33,19 +33,18 @@ namespace Assets.Scripts.Behaviour.managers
                 return;
 
             _currentLerpTime += Time.deltaTime;
-            if (_currentLerpTime > _lerpTime) {
-                _currentLerpTime = _lerpTime;
+            if (_currentLerpTime > LerpTime) {
+                _currentLerpTime = LerpTime;
             }
             Game.Speed = UpdateSpeedTime();
         }
 
         private float UpdateSpeedTime ( ) {
-            var perc = _currentLerpTime / _lerpTime;
+            var perc = _currentLerpTime / LerpTime;
             float speed;
             if (_slowTime) {
                 speed = Mathf.Lerp(_currentSpeed, Constans.MinGameTimeSpeed, perc);
                 speed = speed < Constans.MinGameTimeSpeed ? Constans.MinGameTimeSpeed : speed;
-                //_camera.orthographicSize = Mathf.Lerp(_currentSize, Constans.MinCamaraOrthographicSize, perc);
             } else {
                 speed = Mathf.Lerp(Constans.MaxMaxTimeSpeed, _currentSpeed, perc);
                 speed = speed > Constans.MaxMaxTimeSpeed ? Constans.MaxMaxTimeSpeed : speed;
@@ -58,17 +57,15 @@ namespace Assets.Scripts.Behaviour.managers
         void OnMouseDown ( ) {
             SlowTime = true;
             _currentSize = _camera.orthographicSize;
-            _animator.Play("press");
-            Debug.Log("[input] mouseDown");
+            _animator.Play(AnimPress);
         }
 
 
         void OnMouseUp ( ) {
             SlowTime = false;
-            EventManager.TriggerEvent(EventManagerType.CatchTime); //set an ivent //todo: delete
+            EventManager.TriggerEvent(EventManagerType.CatchTime);
             _currentSize = _camera.orthographicSize;
-            _animator.Play("release");
-            Debug.Log("[input] mouseUp");
+            _animator.Play(AnimRelease);
         }
 
         public bool SlowTime {
@@ -78,14 +75,5 @@ namespace Assets.Scripts.Behaviour.managers
                 _currentLerpTime = 0;
             }
         }
-    }
-
-    public class Constans
-    {
-        public static float MaxCamaraOrthographicSize = 6f;
-        public static float MinCamaraOrthographicSize = 5f;
-
-        public static float MinGameTimeSpeed = 0f;
-        public static float MaxMaxTimeSpeed = 2f;
     }
 }
