@@ -29,9 +29,6 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         private void Update ( ) {
-            if (Game.Pause || Game.GameOver)
-                return;
-
             _currentLerpTime += Time.deltaTime;
             if (_currentLerpTime > LerpTime) {
                 _currentLerpTime = LerpTime;

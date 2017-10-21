@@ -6,9 +6,8 @@ namespace Assets.Scripts.Behaviour
     public class NumberBehaviour : MonoBehaviour
     {
         private SpriteRenderer _spriteRenderer;
-        private float _speed = 0.15f;
-
         private Transform _clockCenter;
+        private readonly float _speed = 0.15f;
 
         private void Awake ( ) {
             _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -21,6 +20,8 @@ namespace Assets.Scripts.Behaviour
         }
 
         private void Update ( ) {
+            if (Game.Pause || Game.GameOver)
+                return;
             transform.position =
                 Vector3.Lerp(transform.position, _clockCenter.transform.position, _speed * Time.deltaTime);
         }
@@ -31,5 +32,8 @@ namespace Assets.Scripts.Behaviour
             NumberManager.Instance.DestroyNumber(this);
             Game.OnGameEnd();
         }
+
+        public int Hour { get; set; }
+        public int Minutes { get; set; }
     }
 }

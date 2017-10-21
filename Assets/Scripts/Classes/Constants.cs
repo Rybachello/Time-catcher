@@ -14,5 +14,15 @@ namespace Assets.Scripts.Classes
         public static float MaxMaxTimeSpeed = 2f;
 
         public static float MaxNumberSpawnRadious;
+
+        public static float SpawnNumberTime = 5;
+        public static float SpawnNumberDeltaTime = 4;
+
+        public static float MinNumberRange = 9;
+        public static float MaxNumberRange = 16;
+
+        public const float HoursToDegrees = 360f / 12f;
+        public const float MinutesToDegrees = 360f / 60f;
+        public static float SecondsToDegrees = 360f / 60f;
     }
 }

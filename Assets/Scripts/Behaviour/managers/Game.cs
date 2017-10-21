@@ -20,6 +20,7 @@ namespace Assets.Scripts.Behaviour.managers
 
         private void Start ( ) {
             OnGameStart();
+            Time.timeScale = _gameSpeed;
         }
 
         private void Init ( ) {
@@ -28,6 +29,7 @@ namespace Assets.Scripts.Behaviour.managers
 
             _pause = false;
             _gameOver = false;
+        
         }
 
         private void OnDestroy ( ) {
@@ -37,6 +39,7 @@ namespace Assets.Scripts.Behaviour.managers
         private void Update ( ) {
             if (Game.Pause || Game.GameOver)
                 return;
+            Debug.Log(Speed);
             _clockTime.UpdateHours(Time.deltaTime * Speed);
         }
 
@@ -48,7 +51,7 @@ namespace Assets.Scripts.Behaviour.managers
         public static void OnGameEnd ( ) {
             Debug.Log("[game] Game Over");
             EventManager.TriggerEvent(EventManagerType.OnGameEnd);
-            //GameOver = true; //todo: rename
+            GameOver = true;
         }
 
         #region  properties

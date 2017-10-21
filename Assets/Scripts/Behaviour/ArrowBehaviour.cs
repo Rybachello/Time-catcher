@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Behaviour.managers;
+using Assets.Scripts.Classes;
 using UnityEngine;
 
 namespace Assets.Scripts.Behaviour
@@ -9,9 +10,7 @@ namespace Assets.Scripts.Behaviour
 
         private Game _game;
         [SerializeField] private float LerpTime = 5;
-        private const float hoursToDegrees = 360f / 12f;
-        private const float minutesToDegrees = 360f / 60f;
-        private const float secondsToDegrees = 360f / 60f;
+     
 
         private void Start ( ) {
             Init();
@@ -36,9 +35,9 @@ namespace Assets.Scripts.Behaviour
         private float GetAngle ( ) {
             switch (ArrowType) {
                 case ArrowType.Hours:
-                    return _game.ClockTime.Hours * hoursToDegrees;
+                    return _game.ClockTime.Hours * Constans.HoursToDegrees;
                 case ArrowType.Minutes:
-                    return _game.ClockTime.Minutes * minutesToDegrees;
+                    return _game.ClockTime.Minutes * Constans.MinutesToDegrees;
             }
             Debug.LogWarning("Cannot calculate angle");
             return float.NaN;
