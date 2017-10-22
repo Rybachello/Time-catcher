@@ -57,6 +57,7 @@ namespace Assets.Scripts.Behaviour
             if (!target)
                 return;
             var hour = target.Hour;
+            
             _leftLimit.gameObject.SetActive(true);
             _rightLimit.gameObject.SetActive(true);
             _leftLimit.transform.localRotation = Quaternion.Euler(0, 0, (hour + 1) *- Constans.HoursToDegrees);

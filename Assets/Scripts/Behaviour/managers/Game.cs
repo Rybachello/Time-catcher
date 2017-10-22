@@ -38,13 +38,13 @@ namespace Assets.Scripts.Behaviour.managers
 
         private void Update ( ) {
             if (Game.Pause || Game.GameOver)
-                return;
-            Debug.Log(Speed);
+                return;       
             _clockTime.UpdateHours(Time.deltaTime * Speed);
         }
 
         public void OnGameStart ( ) {
             Debug.Log("[game] Game Started");
+            User.Reset();
             EventManager.TriggerEvent(EventManagerType.OnGameStart);
         }
 
