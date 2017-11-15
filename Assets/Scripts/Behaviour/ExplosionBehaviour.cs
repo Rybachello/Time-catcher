@@ -12,10 +12,10 @@ namespace Assets.Scripts.Behaviour
             _clockCenter = GameObject.Find("clock").transform;
         }
 
-        private void Update ( ) {
-            transform.position =
-                Vector3.Lerp(transform.position, _clockCenter.transform.position, _speed * Time.deltaTime);
-        }
+        //private void Update ( ) {
+        //    transform.position =
+        //        Vector3.Lerp(transform.position, _clockCenter.transform.position, _speed * Time.deltaTime);
+        //}
 
         void OnTriggerEnter2D(Collider2D other)
         {

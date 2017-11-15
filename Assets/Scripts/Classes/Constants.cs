@@ -7,11 +7,11 @@ namespace Assets.Scripts.Classes
 {
     public class Constans
     {
-        public static float MaxCamaraOrthographicSize = 6f;
+        public static float MaxCamaraOrthographicSize = 8f;
         public static float MinCamaraOrthographicSize = 5f;
 
-        public static float MinGameTimeSpeed = 0f;
-        public static float MaxMaxTimeSpeed = 2f;
+        public static float MinGameTimeSpeed = 0.05f;
+        public static float MaxGameTimeSpeed = 3f;
 
         public static float MaxNumberSpawnRadious;
 

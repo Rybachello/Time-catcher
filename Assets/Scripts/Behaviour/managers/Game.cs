@@ -1,18 +1,18 @@
 ﻿using Assets.Scripts.Classes;
 using UnityEngine;
+using Time = UnityEngine.Time;
 
 namespace Assets.Scripts.Behaviour.managers
 {
     public class Game : MonoBehaviour
     {
-        private ClockTime _clockTime;
-        
         private static bool _pause = false;
         private static bool _gameOver = false;
-        private static float _gameSpeed = 2f;
-
+        private static float _gameSpeed = 1f;
 
         private static Game _instance;
+        private static float _timeleft = 90f;
+
 
         private void Awake ( ) {
             Init();
@@ -20,16 +20,14 @@ namespace Assets.Scripts.Behaviour.managers
 
         private void Start ( ) {
             OnGameStart();
-            Time.timeScale = _gameSpeed;
+            UnityEngine.Time.timeScale = _gameSpeed;
         }
 
         private void Init ( ) {
-            _instance = this;
-            _clockTime = new ClockTime();
+            Instance = this;
 
             _pause = false;
             _gameOver = false;
-        
         }
 
         private void OnDestroy ( ) {
@@ -37,9 +35,13 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         private void Update ( ) {
-            if (Game.Pause || Game.GameOver)
-                return;       
-            _clockTime.UpdateHours(Time.deltaTime * Speed);
+            if (Pause || GameOver)
+                return;
+            _timeleft -= UnityEngine.Time.deltaTime;
+            if (_timeleft < 0) {
+                _timeleft = 0f;
+                OnGameEnd();
+            }
         }
 
         public void OnGameStart ( ) {
@@ -51,23 +53,24 @@ namespace Assets.Scripts.Behaviour.managers
         public static void OnGameEnd ( ) {
             Debug.Log("[game] Game Over");
             EventManager.TriggerEvent(EventManagerType.OnGameEnd);
-            GameOver = true;
+            GameOver = true; //todo: uncomment here
         }
 
         #region  properties
 
-        public ClockTime ClockTime {
-            get { return _clockTime; }
-        }
-        
         public static float Speed {
             get { return _gameSpeed; }
             set {
                 _gameSpeed = value;
 
                 if (!Game.Pause)
-                    Time.timeScale = value;
+                    UnityEngine.Time.timeScale = value;
             }
+        }
+
+        public static float TimeLeft {
+            get { return _timeleft; }
+            set { _timeleft = value; }
         }
 
         public static bool Pause {
@@ -96,8 +99,9 @@ namespace Assets.Scripts.Behaviour.managers
                     return _instance;
                 }
             }
+            private set { _instance = value; }
         }
-
-        #endregion
     }
+
+    #endregion
 }

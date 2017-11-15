@@ -1,75 +1,110 @@
-﻿using Assets.Scripts.Classes;
+﻿using System.Collections.Generic;
+using Assets.Scripts.Classes;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Behaviour.managers
 {
     public class InputManager : MonoBehaviour
     {
-        private const float LerpTime = 0.5f;
+        //todo:move to anim script
         private const string AnimRelease = "release";
+
         private const string AnimPress = "press";
+        public Animator _animator;
+
+        public ArrowBehaviour _minuteArrow;
+        public ArrowBehaviour _hourArrow;
+        private ArrowBehaviour _current;
+
+        private int _targetHour;
+        private int _targetMinute;
 
         private Camera _camera;
-        private Animator _animator;
-
-        private float _currentLerpTime;
-        private float _currentSpeed;
         private float _currentSize;
-        private bool _slowTime;
-        
-        private void Awake ( ) {
-            Init();
-        }
 
-        private void Init ( ) {
-            _animator = GetComponent<Animator>();
+        private void Start ( ) {
+            Current = _hourArrow;
             _camera = Camera.main;
             _currentSize = _camera.orthographicSize;
-            _currentSpeed = Game.Speed;
+
+            GenerateTargetTime();
+            ResetCurrentTime();
         }
 
-        private void Update ( ) {
-            _currentLerpTime += Time.deltaTime;
-            if (_currentLerpTime > LerpTime) {
-                _currentLerpTime = LerpTime;
-            }
-            Game.Speed = UpdateSpeedTime();
+        private void ChangeArrow ( ) {
+            //todo: refactor 
+            _current.Selected = false;
+            Current = _current.ArrowType == ArrowType.Minutes
+                ? _hourArrow
+                : _minuteArrow;
         }
 
-        private float UpdateSpeedTime ( ) {
-            var perc = _currentLerpTime / LerpTime;
-            float speed;
-            if (_slowTime) {
-                speed = Mathf.Lerp(_currentSpeed, Constans.MinGameTimeSpeed, perc);
-                speed = speed < Constans.MinGameTimeSpeed ? Constans.MinGameTimeSpeed : speed;
+        public void OnSlowTimeClickDown ( ) {
+            SlowArrow(true);
+            Debug.Log("Slow Time Down");
+            _camera.orthographicSize = Mathf.Lerp(_currentSize, Constans.MinCamaraOrthographicSize, 0.15f);
+        }
+
+        public void OnSlowTimeClickUp ( ) {
+            SlowArrow(false);
+            _current.CatchTime();
+            Check();
+            ChangeArrow();
+            _camera.orthographicSize = Mathf.Lerp(_currentSize, Constans.MaxCamaraOrthographicSize, 0.15f);
+            //check time here
+            Debug.Log("Slow Time UP");
+        }
+
+        private void SlowArrow (bool b) {
+            _current.SlowTime(b);
+            _animator.Play(b ? AnimPress : AnimRelease);
+        }
+
+        private void Check ( ) {
+            var hour = _hourArrow.CaughtTime;
+            var minute = _minuteArrow.CaughtTime;
+
+            if (hour == -1f || minute == -1f)
+                return;
+
+            Debug.Log("[input manager] Check time::" + _hourArrow.CaughtTime + "h " + _minuteArrow.CaughtTime + "m");
+
+            if (Mathf.Abs(hour - _targetHour) < 0.5) {
+                Game.TimeLeft += 2;
             } else {
-                speed = Mathf.Lerp(Constans.MaxMaxTimeSpeed, _currentSpeed, perc);
-                speed = speed > Constans.MaxMaxTimeSpeed ? Constans.MaxMaxTimeSpeed : speed;
+                Game.TimeLeft -= 15;
             }
-            _camera.orthographicSize = Mathf.Lerp(_currentSize,
-                _slowTime ? Constans.MinCamaraOrthographicSize : Constans.MaxCamaraOrthographicSize, perc);
-            return speed;
+
+            if (Mathf.Abs(minute - _targetMinute) < 5) {
+                Game.TimeLeft += 3;
+            } else {
+                Game.TimeLeft -= 5;
+            }
+
+            User.Score += 15;
+
+            GenerateTargetTime();
+            ResetCurrentTime();
+            _minuteArrow.Stop = _hourArrow.Stop = false;
         }
 
-        void OnMouseDown ( ) {
-            SlowTime = true;
-            _currentSize = _camera.orthographicSize;
-            _animator.Play(AnimPress);
+        private void ResetCurrentTime ( ) {
+            _hourArrow.CaughtTime = -1;
+            _minuteArrow.CaughtTime = -1;
         }
 
-
-        void OnMouseUp ( ) {
-            SlowTime = false;
-            EventManager.TriggerEvent(EventManagerType.CatchTime);
-            _currentSize = _camera.orthographicSize;
-            _animator.Play(AnimRelease);
+        private void GenerateTargetTime ( ) {
+            _targetHour = Random.Range(0, 12);
+            _targetMinute = Random.Range(0, 60);
+            InGame.Instance.UpdateTargetText(_targetHour, _targetMinute);
         }
 
-        public bool SlowTime {
-            get { return _slowTime; }
-            private set {
-                _slowTime = value;
-                _currentLerpTime = 0;
+        public ArrowBehaviour Current {
+            get { return _current.ArrowType == ArrowType.Hours ? _hourArrow : _minuteArrow; }
+            set {
+                _current = value;
+                _current.Selected = true;
             }
         }
     }
