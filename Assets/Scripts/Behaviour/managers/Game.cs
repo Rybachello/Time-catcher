@@ -19,8 +19,12 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         private void Start ( ) {
+#if UNITY_ANDROID
+            Screen.orientation = ScreenOrientation.Portrait;
+#endif
             OnGameStart();
             UnityEngine.Time.timeScale = _gameSpeed;
+            _timeleft = 90f;
         }
 
         private void Init ( ) {
@@ -56,7 +60,7 @@ namespace Assets.Scripts.Behaviour.managers
             GameOver = true; //todo: uncomment here
         }
 
-        #region  properties
+#region  properties
 
         public static float Speed {
             get { return _gameSpeed; }
@@ -103,5 +107,5 @@ namespace Assets.Scripts.Behaviour.managers
         }
     }
 
-    #endregion
+#endregion
 }

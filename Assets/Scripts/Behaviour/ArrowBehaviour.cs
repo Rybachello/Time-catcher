@@ -2,6 +2,8 @@
 using Assets.Scripts.Classes;
 using UnityEngine;
 
+
+
 namespace Assets.Scripts.Behaviour
 {
     public class ArrowBehaviour : MonoBehaviour
@@ -122,6 +124,7 @@ namespace Assets.Scripts.Behaviour
         public void CatchTime ( ) {
             _caughtTime = _time.TimeValue;
             _stop = true;
+            
         }
     }
 
