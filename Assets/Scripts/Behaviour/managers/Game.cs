@@ -57,7 +57,7 @@ namespace Assets.Scripts.Behaviour.managers
         public static void OnGameEnd ( ) {
             Debug.Log("[game] Game Over");
             EventManager.TriggerEvent(EventManagerType.OnGameEnd);
-            GameOver = true; //todo: uncomment here
+            GameOver = true; 
         }
 
 #region  properties

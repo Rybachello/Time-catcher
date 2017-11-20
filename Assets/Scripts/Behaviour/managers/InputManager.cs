@@ -72,25 +72,25 @@ namespace Assets.Scripts.Behaviour.managers
             Debug.Log("Hour diff:" + Mathf.Abs(hour - _targetHour));
 
 
-            var score = 20;
-            var bonusTime = 20;
+            var score = 0;
+            var bonusTime = 0;
             var hourDiff = Mathf.Abs(hour - _targetHour);
             var minuteDiff = Mathf.Abs(minute - _targetMinute);
 
-            if (hourDiff < 0.8 && minuteDiff < 8) {
+            if (hourDiff < 0.5 && minuteDiff < 5) {
                 score = 20;
                 bonusTime = 20;
                 InGame.Instance.ShowCongartsText(bonusTime);
             } else if (hourDiff < 0.8) {
                 score = 5;
-                bonusTime = 10;
+                bonusTime = 0;
             }
             else if (minuteDiff < 8) {
                 score = 10;
-                bonusTime = 15;
+                bonusTime = 0;
             }
-            Game.TimeLeft += score;
-            User.Score += bonusTime;
+            Game.TimeLeft += bonusTime;
+            User.Score += score;
             GenerateTargetTime();
             ResetCurrentTime();
             _minuteArrow.Stop = _hourArrow.Stop = false;
