@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Classes;
-using UnityEngine;
+﻿using UnityEngine;
 using Time = UnityEngine.Time;
 
 namespace Assets.Scripts.Behaviour.managers

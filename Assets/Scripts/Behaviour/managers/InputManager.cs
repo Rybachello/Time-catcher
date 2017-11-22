@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Classes;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,27 +6,32 @@ namespace Assets.Scripts.Behaviour.managers
 {
     public class InputManager : MonoBehaviour
     {
-        //todo:move to anim script
-        private const string AnimRelease = "release";
+        public static int PressedHash = Animator.StringToHash("Pressed");
+        public Animator RightHandAnimator;
 
-        private const string AnimPress = "press";
-        public Animator _animator;
-
-        public ArrowBehaviour _minuteArrow;
-        public ArrowBehaviour _hourArrow;
+        //todo:refactor
+        public ArrowBehaviour MinuteArrow;
+        public ArrowBehaviour HourArrow;
         private ArrowBehaviour _current;
 
         private int _targetHour;
         private int _targetMinute;
 
         private Camera _camera;
-        private float _currentSize;
+        private float _currentCameraSize;
+
+        protected const float MaxCamaraOrthographicSize = 8f;
+        protected const float MinCamaraOrthographicSize = 5f;
+        protected const float CameraSizingSpeed = 5f;
+
+
+        private void Awake ( ) {
+            _camera = Camera.main;
+            _currentCameraSize = _camera.orthographicSize;
+            Current = HourArrow;
+        }
 
         private void Start ( ) {
-            Current = _hourArrow;
-            _camera = Camera.main;
-            _currentSize = _camera.orthographicSize;
-
             GenerateTargetTime();
             ResetCurrentTime();
         }
@@ -36,39 +40,38 @@ namespace Assets.Scripts.Behaviour.managers
             //todo: refactor 
             _current.Selected = false;
             Current = _current.ArrowType == ArrowType.Minutes
-                ? _hourArrow
-                : _minuteArrow;
+                ? HourArrow
+                : MinuteArrow;
         }
 
         public void OnSlowTimeClickDown ( ) {
-            SlowArrow(true);
-            Debug.Log("Slow Time Down");
-            _camera.orthographicSize = Mathf.Lerp(_currentSize, Constans.MinCamaraOrthographicSize, 0.15f);
+            Debug.Log("[InputManager]: Slow Time Down");
+            SlowArrow(_current, true);
+            _camera.orthographicSize = Mathf.Lerp(_currentCameraSize, MinCamaraOrthographicSize, CameraSizingSpeed * UnityEngine.Time.deltaTime);
         }
 
         public void OnSlowTimeClickUp ( ) {
-            SlowArrow(false);
+            Debug.Log("[InputManager]: Slow Time UP");
+            SlowArrow(_current, false);
             _current.CatchTime();
             Check();
             ChangeArrow();
-            _camera.orthographicSize = Mathf.Lerp(_currentSize, Constans.MaxCamaraOrthographicSize, 0.15f);
-            //check time here
-            Debug.Log("Slow Time UP");
+            _camera.orthographicSize = Mathf.Lerp(_currentCameraSize, MaxCamaraOrthographicSize, CameraSizingSpeed * UnityEngine.Time.deltaTime);
         }
 
-        private void SlowArrow (bool b) {
-            _current.SlowTime(b);
-            _animator.Play(b ? AnimPress : AnimRelease);
+        private void SlowArrow (ArrowBehaviour current, bool pressed) {
+            current.SlowTime(pressed);
+            RightHandAnimator.SetBool(PressedHash, pressed);
         }
 
         private void Check ( ) {
-            var hour = _hourArrow.CaughtTime;
-            var minute = _minuteArrow.CaughtTime;
+            var hour = HourArrow.CaughtTime;
+            var minute = MinuteArrow.CaughtTime;
 
-            if (hour == -1f || minute == -1f)
+            if(Mathf.Approximately(hour,-1f) || Mathf.Approximately(minute, -1f))
                 return;
 
-            Debug.Log("[input manager] Check time::" + _hourArrow.CaughtTime + "h " + _minuteArrow.CaughtTime + "m");
+            Debug.Log("[input manager] Check time::" + HourArrow.CaughtTime + "h " + MinuteArrow.CaughtTime + "m");
             Debug.Log("Hour diff:" + Mathf.Abs(hour - _targetHour));
 
 
@@ -84,8 +87,7 @@ namespace Assets.Scripts.Behaviour.managers
             } else if (hourDiff < 0.8) {
                 score = 5;
                 bonusTime = 0;
-            }
-            else if (minuteDiff < 8) {
+            } else if (minuteDiff < 8) {
                 score = 10;
                 bonusTime = 0;
             }
@@ -93,12 +95,12 @@ namespace Assets.Scripts.Behaviour.managers
             User.Score += score;
             GenerateTargetTime();
             ResetCurrentTime();
-            _minuteArrow.Stop = _hourArrow.Stop = false;
+            MinuteArrow.Stop = HourArrow.Stop = false;
         }
 
         private void ResetCurrentTime ( ) {
-            _hourArrow.CaughtTime = -1;
-            _minuteArrow.CaughtTime = -1;
+            HourArrow.CaughtTime = -1;
+            MinuteArrow.CaughtTime = -1;
         }
 
         private void GenerateTargetTime ( ) {
@@ -108,7 +110,7 @@ namespace Assets.Scripts.Behaviour.managers
         }
 
         public ArrowBehaviour Current {
-            get { return _current.ArrowType == ArrowType.Hours ? _hourArrow : _minuteArrow; }
+            get { return _current.ArrowType == ArrowType.Hours ? HourArrow : MinuteArrow; }
             set {
                 _current = value;
                 _current.Selected = true;

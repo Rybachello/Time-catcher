@@ -1,26 +1,29 @@
-﻿using Assets.Scripts.Behaviour.managers;
-using Assets.Scripts.Classes;
+﻿using System;
+using Assets.Scripts.Behaviour.managers;
 using UnityEngine;
-
 
 
 namespace Assets.Scripts.Behaviour
 {
     public class ArrowBehaviour : MonoBehaviour
     {
+        public static float HoursToDegrees = 360f / 12f;
+        public static float MinutesToDegrees = 360f / 60f;
+
         public ArrowType ArrowType;
 
         public Color SelectedColor;
         public Color NormalColor;
+
         public float LerpTime = 0.25f;
-
-        private bool _selected = false;
-
         public float RotatationLerpTime = 15;
 
+        public float MaxGameTimeSpeed = 3f;
+        public float MinGameTimeSpeed = 0.05f;
+      
+        private bool _selected = false;
         private bool _slowTime = false;
 
-        private float _currentSpeed;
         private float _currentLerpTime;
         private bool _stop;
 
@@ -28,6 +31,7 @@ namespace Assets.Scripts.Behaviour
 
         private Time _time;
         private SpriteRenderer _spriteRenderer;
+        private float _currentSpeed;
 
         private void Start ( ) {
             Init();
@@ -36,7 +40,7 @@ namespace Assets.Scripts.Behaviour
         private void Init ( ) {
             _time = new Time(ArrowType);
             _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            _currentSpeed = Constans.MaxGameTimeSpeed;
+            _currentSpeed = MaxGameTimeSpeed;
             _stop = false;
         }
 
@@ -62,11 +66,11 @@ namespace Assets.Scripts.Behaviour
             var perc = _currentLerpTime * UnityEngine.Time.deltaTime / LerpTime;
             float speed;
             if (_slowTime) {
-                speed = Mathf.Lerp(_currentSpeed, Constans.MinGameTimeSpeed, perc);
-                speed = speed < Constans.MinGameTimeSpeed ? Constans.MinGameTimeSpeed : speed;
+                speed = Mathf.Lerp(_currentSpeed, MinGameTimeSpeed, perc);
+                speed = speed < MinGameTimeSpeed ? MinGameTimeSpeed : speed;
             } else {
-                speed = Mathf.Lerp(Constans.MaxGameTimeSpeed, _currentSpeed, perc);
-                speed = speed > Constans.MaxGameTimeSpeed ? Constans.MaxGameTimeSpeed : speed;
+                speed = Mathf.Lerp(MaxGameTimeSpeed, _currentSpeed, perc);
+                speed = speed > MaxGameTimeSpeed ? MaxGameTimeSpeed : speed;
             }
             return speed;
         }
@@ -80,10 +84,10 @@ namespace Assets.Scripts.Behaviour
             var c = float.NaN;
             switch (ArrowType) {
                 case ArrowType.Hours:
-                    c = Constans.HoursToDegrees;
+                    c = HoursToDegrees;
                     break;
                 case ArrowType.Minutes:
-                    c = Constans.MinutesToDegrees;
+                    c = MinutesToDegrees;
                     break;
                 default:
                     Debug.LogWarning("Cannot calculate angle");
@@ -92,6 +96,7 @@ namespace Assets.Scripts.Behaviour
             var delta = _time.TimeValue * c;
             return Quaternion.Euler(0, 0, delta);
         }
+
 
         public void SlowTime (bool slow) {
             _slowTime = slow;
@@ -124,15 +129,15 @@ namespace Assets.Scripts.Behaviour
         public void CatchTime ( ) {
             _caughtTime = _time.TimeValue;
             _stop = true;
-            
         }
     }
 
     public class Time
     {
         private float _timeValue;
-        private float _timeMultiplier = 20f; //50
         private readonly ArrowType _arrowType;
+
+        protected const float TimeMultiplier = 20f; //50
 
         public Time (ArrowType arrowType) {
             _arrowType = arrowType;
@@ -144,7 +149,7 @@ namespace Assets.Scripts.Behaviour
         }
 
         public void UpdateTimeValue (float delta) {
-            TimeValue += delta * _timeMultiplier;
+            TimeValue += delta * TimeMultiplier;
         }
 
         public float TimeValue {

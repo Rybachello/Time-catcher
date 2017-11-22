@@ -19,13 +19,11 @@ namespace Assets.Scripts.Behaviour
         [SerializeField] private Text _targetText;
         [SerializeField] private Text _congratsText;
 
-        //private Button _resumeButton;
-        //private Button _restartButton;
-        //private Button _pauseButton;
-        //private Button _exitButton;
-
-        private readonly string[] _congratStrings = new[] {"\"Awesome!\"", "Nice!", "Impressive!", "Wonderful!"};
         private static InGame _instance;
+
+        protected readonly string[] CongratStrings = new[] { "\"Awesome!\"", "Nice!", "Impressive!", "Wonderful!" };
+        protected const string MainMenuSceneName = "menu";
+        protected const string GameSceneName = "game";
 
         private void Awake ( ) {
             Init();
@@ -38,11 +36,7 @@ namespace Assets.Scripts.Behaviour
             GamePausePanel = GamePausePanel ?? gameObject.transform.Find("GamePausePanel").gameObject;
             InGamePanel = InGamePanel ?? gameObject.transform.Find("InGamePanel").gameObject;
             GameOverPanel = GameOverPanel ?? gameObject.transform.Find("GameOverPanel").gameObject;
-            ////buttons
-            //_resumeButton = _resumeButton ?? GamePausePanel.transform.Find("Btn_resume").GetComponent<Button>();
-            //_restartButton = _restartButton ?? GamePausePanel.transform.Find("Btn_restart").GetComponent<Button>();
-            //_exitButton = _exitButton ?? GamePausePanel.transform.Find("Btn_exit").GetComponent<Button>();
-            //_pauseButton = _pauseButton ?? InGamePanel.transform.Find("Btn_pause").GetComponent<Button>();
+
             //text
             _timeLeft = _timeLeft ?? InGamePanel.transform.Find("Img_TimeLeft").GetComponentInChildren<Text>();
             _userScore = _userScore ?? InGamePanel.transform.Find("Img_Score").GetComponentInChildren<Text>();
@@ -52,13 +46,6 @@ namespace Assets.Scripts.Behaviour
             GameOverPanel.SetActive(false);
             InGamePanel.SetActive(true);
         }
-
-        //private void Start ( ) {
-        //    _pauseButton.onClick.AddListener(( ) => OnPauseClick(true));
-        //    _resumeButton.onClick.AddListener(( ) => OnPauseClick(false));
-        //    _restartButton.onClick.AddListener(OnRestartButtonClick);
-        //    _restartButton.onClick.AddListener(OnExitButtonClick);
-        //}
 
         private void OnDestroy ( ) {
             _instance = null;
@@ -88,7 +75,7 @@ namespace Assets.Scripts.Behaviour
                 _congratsText.rectTransform.anchoredPosition = Vector2.zero;
                 _congratsText.rectTransform.localScale = Vector3.one * 0.8f;
             }
-            _congratsText.text = _congratStrings[UnityEngine.Random.Range(0, _congratStrings.Length)];
+            _congratsText.text = CongratStrings[UnityEngine.Random.Range(0, CongratStrings.Length)];
             _congratsText.text += "\n" + "+" + bonusTime + "s";
             _congratsText.rectTransform.DOScale(Vector3.one * 1.3f, 1f);
             _congratsText.rectTransform
@@ -97,7 +84,10 @@ namespace Assets.Scripts.Behaviour
         }
 
         public void UpdateTargetText (int targetHour, int targetMinute) {
-            _targetText.text = targetHour + "h " + targetMinute + "m";
+            if (targetHour == -1 || targetMinute == -1)
+                _targetText.text = "";
+            else
+                _targetText.text = targetHour + "h " + targetMinute + "m";
         }
 
         public void ShowGameOverPanel ( ) {
@@ -120,7 +110,7 @@ namespace Assets.Scripts.Behaviour
 
         public void OnRestartButtonClick ( ) {
             Debug.Log("[InGame] Restart Button");
-            SceneManager.LoadScene("game");
+            SceneManager.LoadScene(GameSceneName);
         }
 
 
@@ -129,7 +119,7 @@ namespace Assets.Scripts.Behaviour
         }
 
         public void OnMainMenuClick ( ) {
-            SceneManager.LoadScene("menu");
+            SceneManager.LoadScene(MainMenuSceneName);
         }
 
         #endregion
