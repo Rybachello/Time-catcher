@@ -15,21 +15,25 @@ namespace Assets.Scripts.Behaviour
         public GameObject GameOverPanel;
 
         [Header("Texts")] [SerializeField] private Text _userScore;
-        [SerializeField] private Text _timeLeft;
+        [SerializeField] private Text _timeLeftText;
         [SerializeField] private Text _targetText;
         [SerializeField] private Text _congratsText;
+        [SerializeField] private Text _countDownText;
+        private RectTransform _countdownRectTransform;
 
         private static InGame _instance;
 
-        protected readonly string[] CongratStrings = new[] { "\"Awesome!\"", "Nice!", "Impressive!", "Wonderful!" };
+        protected readonly string[] CongratStrings = new[] {"\"Awesome!\"", "Nice!", "Impressive!", "Wonderful!"};
         protected const string MainMenuSceneName = "menu";
         protected const string GameSceneName = "game";
 
-        private void Awake ( ) {
+        private void Awake ( )
+        {
             Init();
         }
 
-        private void Init ( ) {
+        private void Init ( )
+        {
             //get ref
             _instance = this;
             //panel
@@ -38,38 +42,52 @@ namespace Assets.Scripts.Behaviour
             GameOverPanel = GameOverPanel ?? gameObject.transform.Find("GameOverPanel").gameObject;
 
             //text
-            _timeLeft = _timeLeft ?? InGamePanel.transform.Find("Img_TimeLeft").GetComponentInChildren<Text>();
+            _timeLeftText = _timeLeftText ?? InGamePanel.transform.Find("Img_TimeLeft").GetComponentInChildren<Text>();
             _userScore = _userScore ?? InGamePanel.transform.Find("Img_Score").GetComponentInChildren<Text>();
             _targetText = _targetText ?? InGamePanel.transform.Find("Img_TargetTime").GetComponentInChildren<Text>();
+            _congratsText = _congratsText ?? InGamePanel.transform.Find("Txt_Congrats").GetComponent<Text>();
+            _countDownText = _countDownText ?? InGamePanel.transform.Find("Txt_CountDown").GetComponent<Text>();
+            _countdownRectTransform = _countDownText.GetComponent<RectTransform>();
 
             GamePausePanel.SetActive(false);
             GameOverPanel.SetActive(false);
             InGamePanel.SetActive(true);
         }
 
-        private void OnDestroy ( ) {
+        private void OnDestroy ( )
+        {
             _instance = null;
         }
 
-        private void OnEnable ( ) {
+        private void OnEnable ( )
+        {
             EventManager.StartListening(EventManagerType.OnGameEnd, ShowGameOverPanel);
         }
 
-        private void OnDisable ( ) {
+        private void OnDisable ( )
+        {
             EventManager.StopListening(EventManagerType.OnGameEnd, ShowGameOverPanel);
         }
 
 
-        void Update ( ) {
+        void Update ( )
+        {
             _userScore.text = User.Score.ToString();
-            _timeLeft.text = Game.TimeLeft.ToString("##.##") + "s";
-            //var time = NumberManager.Instance.TargetTime;
+            _timeLeftText.text = Game.TimeLeft.ToString("##.##") + "s";
 
-            //MinutesText.text = time?  "Hours :: " + time.Hour :"";
-            //HoursText.text = time ? "Minutes :: " + time.Minutes:"";
+            var timeToStart = Game.Instance.TimeToStart;
+            if (timeToStart >= 0) {
+                _countDownText.gameObject.SetActive(true);
+                _countDownText.text = Mathf.Ceil(timeToStart).ToString();
+                _countdownRectTransform.localScale =
+                    Vector3.one * (1.0f - (timeToStart - Mathf.Floor(timeToStart)));
+            } else {
+                _countdownRectTransform.localScale = Vector3.zero;
+            }
         }
 
-        public void ShowCongartsText (int bonusTime) {
+        public void ShowCongartsText (int bonusTime)
+        {
             if (!_congratsText.IsActive()) {
                 _congratsText.gameObject.SetActive(true);
                 _congratsText.rectTransform.anchoredPosition = Vector2.zero;
@@ -83,21 +101,24 @@ namespace Assets.Scripts.Behaviour
                          .OnComplete(( ) => { _congratsText.gameObject.SetActive(false); });
         }
 
-        public void UpdateTargetText (int targetHour, int targetMinute) {
+        public void UpdateTargetText (int targetHour, int targetMinute)
+        {
             if (targetHour == -1 || targetMinute == -1)
                 _targetText.text = "";
             else
                 _targetText.text = targetHour + "h " + targetMinute + "m";
         }
 
-        public void ShowGameOverPanel ( ) {
+        public void ShowGameOverPanel ( )
+        {
             GameOverPanel.gameObject.SetActive(true);
             GameOverPanel.transform.SetAsLastSibling();
         }
 
         #region buttons events
 
-        public void OnPauseClick (bool pause) {
+        public void OnPauseClick (bool pause)
+        {
             Debug.Log("[InGame] On Pause Click");
             Game.Pause = pause;
             GamePausePanel.SetActive(pause);
@@ -108,17 +129,20 @@ namespace Assets.Scripts.Behaviour
             }
         }
 
-        public void OnRestartButtonClick ( ) {
+        public void OnRestartButtonClick ( )
+        {
             Debug.Log("[InGame] Restart Button");
             SceneManager.LoadScene(GameSceneName);
         }
 
 
-        public void OnExitButtonClick ( ) {
+        public void OnExitButtonClick ( )
+        {
             Application.Quit();
         }
 
-        public void OnMainMenuClick ( ) {
+        public void OnMainMenuClick ( )
+        {
             SceneManager.LoadScene(MainMenuSceneName);
         }
 

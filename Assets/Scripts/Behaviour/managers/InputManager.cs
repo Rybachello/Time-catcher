@@ -73,21 +73,20 @@ namespace Assets.Scripts.Behaviour.managers
 
             Debug.Log("[input manager] Check time::" + HourArrow.CaughtTime + "h " + MinuteArrow.CaughtTime + "m");
             Debug.Log("Hour diff:" + Mathf.Abs(hour - _targetHour));
-
-
+            
             var score = 0;
             var bonusTime = 0;
-            var hourDiff = Mathf.Abs(hour - _targetHour);
-            var minuteDiff = Mathf.Abs(minute - _targetMinute);
+            var hourDiff = Mathf.Abs(hour - _targetHour) < 0.5 || Mathf.Abs(hour - _targetHour) > 11.5;
+            var minuteDiff = Mathf.Abs(minute - _targetMinute) < 5 || Mathf.Abs(minute - _targetMinute) > 55;
 
-            if (hourDiff < 0.5 && minuteDiff < 5) {
+            if (hourDiff && minuteDiff) {
                 score = 20;
                 bonusTime = 20;
                 InGame.Instance.ShowCongartsText(bonusTime);
-            } else if (hourDiff < 0.8) {
+            } else if (hourDiff) {
                 score = 5;
                 bonusTime = 0;
-            } else if (minuteDiff < 8) {
+            } else if (minuteDiff) {
                 score = 10;
                 bonusTime = 0;
             }
