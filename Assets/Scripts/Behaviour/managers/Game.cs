@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using Time = UnityEngine.Time;
 
 namespace Assets.Scripts.Behaviour.managers
 {

@@ -2,14 +2,15 @@
 using UnityEngine;
 
 namespace Assets.Scripts.Behaviour {
-    public class HourArrowBehaviour : ArrowBehaviour {
+    public class HourArrowBehaviour : ArrowBehaviour
+    {
         protected const float HoursToDegrees = 360f / 12f;
 
         public override ArrowType GetArrowType ( )
         {
             return ArrowType.Hours;
         }
-      
+
         protected override Quaternion GetAngle ( )
         {
             var delta = TimeValue * HoursToDegrees;
@@ -22,19 +23,6 @@ namespace Assets.Scripts.Behaviour {
             if (TimeValue > 12) {
                 TimeValue = 0;
             }
-        }
-
-        private void Awake ( )
-        {
-            Init();
-        }
-
-        private void Update ( )
-        {
-            if (Game.Pause || Game.GameOver || Stop)
-                return;
-            UpdateTime();
-            UpdateArrowMovement();
         }
     }
 }

@@ -112,15 +112,14 @@ namespace Assets.Scripts.Behaviour.managers
         private void ResetCurrentTime ( )
         {
             ArrowBehavioursList.ForEach(x => {
-                x.CaughtTime = -1;
-                x.Stop = false;
+                x.ResetCaughtTime();
             });
         }
 
         private float GetArrowCaughtTime(ArrowBehaviour.ArrowType type)
         {
             var arrow = ArrowBehavioursList.First(x => x.GetArrowType() == type);
-            return arrow.CaughtTime;
+            return arrow.GetCaughtTime;
         }
 
         private void GenerateTargetTime ( )

@@ -97,7 +97,7 @@ namespace Assets.Scripts.Behaviour
             _congratsText.text += "\n" + "+" + bonusTime + "s";
             _congratsText.rectTransform.DOScale(Vector3.one * 1.3f, 1f);
             _congratsText.rectTransform
-                         .DOAnchorPos(_congratsText.rectTransform.anchoredPosition + new Vector2(0, 50), 1f)
+                         .DOAnchorPos(_congratsText.rectTransform.anchoredPosition + new Vector2(0, 75), 1f)
                          .OnComplete(( ) => { _congratsText.gameObject.SetActive(false); });
         }
 

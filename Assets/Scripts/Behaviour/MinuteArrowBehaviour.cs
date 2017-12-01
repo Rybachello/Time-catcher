@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Behaviour.managers;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.Behaviour
 {
@@ -24,20 +23,6 @@ namespace Assets.Scripts.Behaviour
         {
             var delta = TimeValue * MinutesToDegrees;
             return Quaternion.Euler(0, 0, delta);
-        }
-
-        //todo: move to parent file? 
-        private void Awake ( )
-        {
-            Init();
-        }
-
-        private void Update ( )
-        {
-            if (Game.Pause || Game.GameOver || Stop)
-                return;
-            UpdateTime();
-            UpdateArrowMovement();
         }
     }
 }

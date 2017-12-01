@@ -1,5 +1,4 @@
-﻿using System;
-using Assets.Scripts.Behaviour.managers;
+﻿using Assets.Scripts.Behaviour.managers;
 using UnityEngine;
 
 
@@ -13,7 +12,9 @@ namespace Assets.Scripts.Behaviour
             Minutes
         }
 
+        //constants
         public float MaxGameTimeSpeed = 3f;
+
         public float MinGameTimeSpeed = 0.05f;
         public float TimeMultiplier = 20f;
         public float LerpTime = 0.25f;
@@ -21,13 +22,17 @@ namespace Assets.Scripts.Behaviour
         public Color SelectedColor = new Color(57, 160, 53, 255);
         public Color NormalColor = Color.white;
 
-        public bool Stop { get; set; }
-        public float TimeValue { get; set; }
-        public float CaughtTime { get; set; }
+        protected float TimeValue { get; set; }
+        protected bool Stop { get; set; }
+
+        public float GetCaughtTime {
+            get { return CaughtTime; }
+        }
 
         protected bool _selected = false;
         protected bool _slowTime = false;
 
+        protected float CaughtTime;
         protected float CurrentLerpTime;
 
         protected SpriteRenderer SpriteRenderer;
@@ -59,23 +64,43 @@ namespace Assets.Scripts.Behaviour
             }
         }
 
+        public void ResetCaughtTime ( )
+        {
+            CaughtTime = -1;
+            Stop = false;
+        }
+        
+        private void Awake ( )
+        {
+            Init();
+        }
+
         protected virtual void Init ( )
         {
             TimeValue = 0;
-            CaughtTime = -1f; //todo: set proper float? 
+            CaughtTime = -1f;
             SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
             CurrentSpeed = MaxGameTimeSpeed;
             Stop = false;
         }
 
-        protected virtual void UpdateTime ( )
+        private void Update ( )
         {
-            CurrentSpeed = UpdateSpeedTime();
-            CurrentLerpTime += CurrentSpeed;
+            if (Game.Pause || Game.GameOver || Stop)
+                return;
+            CurrentSpeed = UpdateTime();
+            UpdateTimeValue(CurrentSpeed * Time.deltaTime);
+            UpdateArrowMovement();
+        }
+
+        protected virtual float UpdateTime ( )
+        {
+            var speed = UpdateSpeedTime();
+            CurrentLerpTime += speed;
             if (CurrentLerpTime > LerpTime) {
                 CurrentLerpTime = LerpTime;
             }
-            UpdateTimeValue(CurrentSpeed * Time.deltaTime);
+            return speed;
         }
 
         protected virtual float UpdateSpeedTime ( )
