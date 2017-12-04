@@ -30,8 +30,9 @@ namespace Assets.Scripts.Behaviour.managers
 
         private void Start ( )
         {
-            ChangeArrow();
             GenerateTargetTime();
+            ChangeArrow();
+            UpdateTargetText();
             ResetCurrentTime();
         }
 
@@ -57,6 +58,7 @@ namespace Assets.Scripts.Behaviour.managers
             SlowArrow(false);
             Check();
             ChangeArrow();
+            UpdateTargetText();
             _camera.orthographicSize = Mathf.Lerp(_currentCameraSize, MaxCamaraOrthographicSize,
                 CameraSizingSpeed * Time.deltaTime);
         }
@@ -111,12 +113,10 @@ namespace Assets.Scripts.Behaviour.managers
 
         private void ResetCurrentTime ( )
         {
-            ArrowBehavioursList.ForEach(x => {
-                x.ResetCaughtTime();
-            });
+            ArrowBehavioursList.ForEach(x => { x.ResetCaughtTime(); });
         }
 
-        private float GetArrowCaughtTime(ArrowBehaviour.ArrowType type)
+        private float GetArrowCaughtTime (ArrowBehaviour.ArrowType type)
         {
             var arrow = ArrowBehavioursList.First(x => x.GetArrowType() == type);
             return arrow.GetCaughtTime;
@@ -126,8 +126,13 @@ namespace Assets.Scripts.Behaviour.managers
         {
             _targetHour = Random.Range(0, 12);
             _targetMinute = Random.Range(0, 60);
+        }
+
+        private void UpdateTargetText ( )
+        {
             var inGame = InGame.Instance;
-            inGame.UpdateTargetText(_targetHour, _targetMinute);
+            var selectedType = ArrowBehavioursList[_arrowCurrentIndex].GetArrowType();
+            inGame.UpdateTargetText(_targetHour, _targetMinute, selectedType);
         }
     }
 }

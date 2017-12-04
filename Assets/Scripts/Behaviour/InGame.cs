@@ -16,16 +16,19 @@ namespace Assets.Scripts.Behaviour
 
         [Header("Texts")] [SerializeField] private Text _userScore;
         [SerializeField] private Text _timeLeftText;
-        [SerializeField] private Text _targetText;
+        [SerializeField] private Text _targetHourText;
+        [SerializeField] private Text _targetMinuteText;
         [SerializeField] private Text _congratsText;
         [SerializeField] private Text _countDownText;
         private RectTransform _countdownRectTransform;
 
         private static InGame _instance;
 
-        protected readonly string[] CongratStrings = new[] {"\"Awesome!\"", "Nice!", "Impressive!", "Wonderful!"};
+        protected readonly string[] CongratStrings = {"Awesome!", "Nice!", "Impressive!", "Wonderful!"};
         protected const string MainMenuSceneName = "menu";
         protected const string GameSceneName = "game";
+        public Color SelectedColor = new Color(57, 160, 53, 255);
+        public Color NormalColor = new Color(87, 59, 84, 255);
 
         private void Awake ( )
         {
@@ -44,7 +47,6 @@ namespace Assets.Scripts.Behaviour
             //text
             _timeLeftText = _timeLeftText ?? InGamePanel.transform.Find("Img_TimeLeft").GetComponentInChildren<Text>();
             _userScore = _userScore ?? InGamePanel.transform.Find("Img_Score").GetComponentInChildren<Text>();
-            _targetText = _targetText ?? InGamePanel.transform.Find("Img_TargetTime").GetComponentInChildren<Text>();
             _congratsText = _congratsText ?? InGamePanel.transform.Find("Txt_Congrats").GetComponent<Text>();
             _countDownText = _countDownText ?? InGamePanel.transform.Find("Txt_CountDown").GetComponent<Text>();
             _countdownRectTransform = _countDownText.GetComponent<RectTransform>();
@@ -101,12 +103,17 @@ namespace Assets.Scripts.Behaviour
                          .OnComplete(( ) => { _congratsText.gameObject.SetActive(false); });
         }
 
-        public void UpdateTargetText (int targetHour, int targetMinute)
+        public void UpdateTargetText (int targetHour, int targetMinute, ArrowBehaviour.ArrowType selectedType)
         {
-            if (targetHour == -1 || targetMinute == -1)
-                _targetText.text = "";
-            else
-                _targetText.text = targetHour + "h " + targetMinute + "m";
+            if (targetHour == -1 || targetMinute == -1) {
+                _targetHourText.text = _targetMinuteText.text = "";
+                _targetHourText.color = _targetMinuteText.color = NormalColor;
+                return;
+            }
+            _targetHourText.text = targetHour + "h ";
+            _targetHourText.color = selectedType == ArrowBehaviour.ArrowType.Hours ? SelectedColor : NormalColor;
+            _targetMinuteText.text = targetMinute + "m";
+            _targetMinuteText.color = selectedType == ArrowBehaviour.ArrowType.Minutes ? SelectedColor : NormalColor;
         }
 
         public void ShowGameOverPanel ( )
