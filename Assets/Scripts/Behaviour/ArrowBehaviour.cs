@@ -1,176 +1,126 @@
-﻿using System;
-using Assets.Scripts.Behaviour.managers;
+﻿using Assets.Scripts.Behaviour.managers;
 using UnityEngine;
 
 
 namespace Assets.Scripts.Behaviour
 {
-    public class ArrowBehaviour : MonoBehaviour
+    public abstract class ArrowBehaviour : MonoBehaviour
     {
-        public static float HoursToDegrees = 360f / 12f;
-        public static float MinutesToDegrees = 360f / 60f;
+        public enum ArrowType
+        {
+            Hours,
+            Minutes
+        }
 
-        public ArrowType ArrowType;
-
-        public Color SelectedColor;
-        public Color NormalColor;
-
-        public float LerpTime = 0.25f;
-        public float RotatationLerpTime = 15;
-
+        //constants
         public float MaxGameTimeSpeed = 3f;
+
         public float MinGameTimeSpeed = 0.05f;
-      
-        private bool _selected = false;
-        private bool _slowTime = false;
+        public float TimeMultiplier = 20f;
+        public float LerpTime = 0.25f;
+        public int RotatationLerpTime = 15;
+        public Color SelectedColor = new Color(57, 160, 53, 255);
+        public Color NormalColor = Color.white;
 
-        private float _currentLerpTime;
-        private bool _stop;
+        protected float TimeValue { get; set; }
+        protected bool Stop { get; set; }
 
-        private float _caughtTime = -1f;
-
-        private Time _time;
-        private SpriteRenderer _spriteRenderer;
-        private float _currentSpeed;
-
-        private void Start ( ) {
-            Init();
+        public float GetCaughtTime {
+            get { return CaughtTime; }
         }
 
-        private void Init ( ) {
-            _time = new Time(ArrowType);
-            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            _currentSpeed = MaxGameTimeSpeed;
-            _stop = false;
+        protected bool _selected = false;
+        protected bool _slowTime = false;
+
+        protected float CaughtTime;
+        protected float CurrentLerpTime;
+
+        protected SpriteRenderer SpriteRenderer;
+        protected float CurrentSpeed;
+
+        public abstract ArrowType GetArrowType ( );
+        protected abstract Quaternion GetAngle ( );
+        protected abstract void UpdateTimeValue (float delta);
+
+        public void CatchTime ( )
+        {
+            CaughtTime = TimeValue;
+            Stop = true;
         }
 
-        private void Update ( ) {
-            if (Game.Pause || Game.GameOver)
-                return;
-            if (_stop)
-                return;
-            UpdateTime();
-            UpdateArrowMovement();
-        }
-
-        public void UpdateTime ( ) {
-            _currentSpeed = UpdateSpeedTime();
-            _currentLerpTime += _currentSpeed;
-            if (_currentLerpTime > LerpTime) {
-                _currentLerpTime = LerpTime;
-            }
-            _time.UpdateTimeValue(_currentSpeed * UnityEngine.Time.deltaTime);
-        }
-
-        private float UpdateSpeedTime ( ) {
-            var perc = _currentLerpTime * UnityEngine.Time.deltaTime / LerpTime;
-            float speed;
-            if (_slowTime) {
-                speed = Mathf.Lerp(_currentSpeed, MinGameTimeSpeed, perc);
-                speed = speed < MinGameTimeSpeed ? MinGameTimeSpeed : speed;
-            } else {
-                speed = Mathf.Lerp(MaxGameTimeSpeed, _currentSpeed, perc);
-                speed = speed > MaxGameTimeSpeed ? MaxGameTimeSpeed : speed;
-            }
-            return speed;
-        }
-
-        private void UpdateArrowMovement ( ) {
-            var angle = GetAngle();
-            transform.localRotation = Quaternion.Lerp(transform.localRotation, angle, RotatationLerpTime);
-        }
-
-        private Quaternion GetAngle ( ) {
-            var c = float.NaN;
-            switch (ArrowType) {
-                case ArrowType.Hours:
-                    c = HoursToDegrees;
-                    break;
-                case ArrowType.Minutes:
-                    c = MinutesToDegrees;
-                    break;
-                default:
-                    Debug.LogWarning("Cannot calculate angle");
-                    break;
-            }
-            var delta = _time.TimeValue * c;
-            return Quaternion.Euler(0, 0, delta);
-        }
-
-
-        public void SlowTime (bool slow) {
+        public void SlowTime (bool slow)
+        {
             _slowTime = slow;
-            _currentLerpTime = 0;
-        }
-
-        public bool Stop {
-            set { _stop = value; }
-        }
-
-        public float TimeValue {
-            get { return _time.TimeValue; }
-        }
-
-        public float CaughtTime {
-            get { return _caughtTime; }
-            set { _caughtTime = value; }
+            CurrentLerpTime = 0;
         }
 
         public bool Selected {
             get { return _selected; }
             set {
                 _selected = value;
-                if (!_spriteRenderer)
+                if (!SpriteRenderer)
                     Init();
-                _spriteRenderer.color = _selected ? SelectedColor : NormalColor;
+                SpriteRenderer.color = _selected ? SelectedColor : NormalColor;
             }
         }
 
-        public void CatchTime ( ) {
-            _caughtTime = _time.TimeValue;
-            _stop = true;
+        public void ResetCaughtTime ( )
+        {
+            CaughtTime = -1;
+            Stop = false;
         }
-    }
-
-    public class Time
-    {
-        private float _timeValue;
-        private readonly ArrowType _arrowType;
-
-        protected const float TimeMultiplier = 20f; //50
-
-        public Time (ArrowType arrowType) {
-            _arrowType = arrowType;
-            _timeValue = 0;
+        
+        private void Awake ( )
+        {
+            Init();
         }
 
-        public void Reset ( ) {
-            _timeValue = 0;
+        protected virtual void Init ( )
+        {
+            TimeValue = 0;
+            CaughtTime = -1f;
+            SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            CurrentSpeed = MaxGameTimeSpeed;
+            Stop = false;
         }
 
-        public void UpdateTimeValue (float delta) {
-            TimeValue += delta * TimeMultiplier;
+        private void Update ( )
+        {
+            if (Game.Pause || Game.GameOver || Stop)
+                return;
+            CurrentSpeed = UpdateTime();
+            UpdateTimeValue(CurrentSpeed * Time.deltaTime);
+            UpdateArrowMovement();
         }
 
-        public float TimeValue {
-            get { return _timeValue; }
-            set {
-                _timeValue = value;
-                if (_arrowType == ArrowType.Hours && _timeValue > 12) {
-                    _timeValue = 0;
-                    return;
-                }
-                if (_arrowType == ArrowType.Minutes && _timeValue > 60) {
-                    _timeValue = 0;
-                    return;
-                }
+        protected virtual float UpdateTime ( )
+        {
+            var speed = UpdateSpeedTime();
+            CurrentLerpTime += speed;
+            if (CurrentLerpTime > LerpTime) {
+                CurrentLerpTime = LerpTime;
             }
+            return speed;
         }
-    }
 
-    public enum ArrowType
-    {
-        Hours,
-        Minutes,
+        protected virtual float UpdateSpeedTime ( )
+        {
+            var perc = CurrentLerpTime * Time.deltaTime / LerpTime;
+            float speed;
+            if (_slowTime) {
+                speed = Mathf.Lerp(CurrentSpeed, MinGameTimeSpeed, perc);
+                speed = speed < MinGameTimeSpeed ? MinGameTimeSpeed : speed;
+            } else {
+                speed = Mathf.Lerp(MaxGameTimeSpeed, CurrentSpeed, perc);
+                speed = speed > MaxGameTimeSpeed ? MaxGameTimeSpeed : speed;
+            }
+            return speed;
+        }
+
+        protected void UpdateArrowMovement ( )
+        {
+            var angle = GetAngle();
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, angle, RotatationLerpTime);
+        }
     }
 }

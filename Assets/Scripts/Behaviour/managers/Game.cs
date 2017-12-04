@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using Time = UnityEngine.Time;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace Assets.Scripts.Behaviour.managers
 {
@@ -12,54 +12,88 @@ namespace Assets.Scripts.Behaviour.managers
         private static Game _instance;
         private static float _timeleft = 90f;
 
+        private float _timeToStart = -1f;
 
-        private void Awake ( ) {
+        private bool _started = false;
+
+        protected const float CountdownToStartLength = 3f;
+       
+        private void Awake ( )
+        {
             Init();
         }
 
-        private void Start ( ) {
+        private void Start ( )
+        {
 #if UNITY_ANDROID
             Screen.orientation = ScreenOrientation.Portrait;
 #endif
-            OnGameStart();
             UnityEngine.Time.timeScale = _gameSpeed;
             _timeleft = 90f;
+            StartCoroutine(WaitToStart());
         }
 
-        private void Init ( ) {
-            Instance = this;
+        private IEnumerator WaitToStart ( )
+        {
+            _started = false;
+            float length = CountdownToStartLength;
+            _timeToStart = length;
 
+            while (_timeToStart >= 0) {
+                yield return null;
+                _timeToStart -= UnityEngine.Time.deltaTime;
+            }
+
+            _timeToStart = -1;
+            OnGameStart();
+            yield break;
+        }
+
+        private void Init ( )
+        {
+            Instance = this;
             _pause = false;
             _gameOver = false;
         }
 
-        private void OnDestroy ( ) {
+        private void OnDestroy ( )
+        {
             _instance = null;
         }
 
-        private void Update ( ) {
+        private void Update ( )
+        {
             if (Pause || GameOver)
                 return;
+            if(!_started) return;
             _timeleft -= UnityEngine.Time.deltaTime;
-            if (_timeleft < 0) {
+            if (_timeleft < 0)
+            {
                 _timeleft = 0f;
                 OnGameEnd();
             }
         }
 
-        public void OnGameStart ( ) {
+        public void OnGameStart ( )
+        {
             Debug.Log("[game] Game Started");
+            _started = true;
             User.Reset();
             EventManager.TriggerEvent(EventManagerType.OnGameStart);
         }
 
-        public static void OnGameEnd ( ) {
+        public static void OnGameEnd ( )
+        {
             Debug.Log("[game] Game Over");
             EventManager.TriggerEvent(EventManagerType.OnGameEnd);
-            GameOver = true; 
+            GameOver = true;
         }
 
-#region  properties
+        #region  properties
+
+        public float TimeToStart {
+            get { return _timeToStart; }
+        }
 
         public static float Speed {
             get { return _gameSpeed; }
@@ -106,5 +140,5 @@ namespace Assets.Scripts.Behaviour.managers
         }
     }
 
-#endregion
+    #endregion
 }
